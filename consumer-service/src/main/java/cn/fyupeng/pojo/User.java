@@ -1,5 +1,9 @@
 package cn.fyupeng.pojo;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+
 import java.util.Date;
 
 public class User {
@@ -162,4 +166,5 @@ public class User {
     public void setNote(String note) {
         this.note = note;
     }
+
 }

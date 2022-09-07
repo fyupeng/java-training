@@ -3,6 +3,7 @@ package cn.fyupeng;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * @Auther: fyp
@@ -12,6 +13,7 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
  * @Version: 1.0
  */
 
+@EnableFeignClients
 @SpringBootApplication
 @EnableEurekaServer
 public class ConsumerServiceApplication {

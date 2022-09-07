@@ -5,9 +5,7 @@ import cn.fyupeng.service.UserService;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -27,10 +25,34 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/findUser/{stuId}")
-    public User findUser(@PathVariable String stuId) throws ParseException {
-        User user = userService.queryUserById("201910244612");
+    @GetMapping(value = "/find/{id}")
+    public User find(@PathVariable String id) {
+        User user = userService.queryUserById(id);
         return user;
+    }
+
+    @GetMapping(value = "/findAll")
+    public List<User> findAll() {
+        List<User> userList = userService.queryAllUsers();
+        return userList;
+    }
+
+    @PostMapping(value = "/add")
+    public List<User> add(@RequestBody User user) {
+        List<User> userList = userService.add(user);
+        return userList;
+    }
+
+    @PostMapping(value = "/update")
+    public List<User> update(@RequestBody User user) {
+        List<User> userList = userService.update(user);
+        return userList;
+    }
+
+    @GetMapping(value = "/delete/{id}")
+    public List<User> delete(@PathVariable String id) {
+        List<User> userList = userService.delete(id);
+        return userList;
     }
 
 }

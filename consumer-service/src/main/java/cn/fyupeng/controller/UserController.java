@@ -1,17 +1,20 @@
 package cn.fyupeng.controller;
 
+import cn.fyupeng.client.UserClient;
 import cn.fyupeng.pojo.User;
+import cn.fyupeng.utils.JsonUtils;
 import com.netflix.appinfo.InstanceInfo;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @Auther: fyp
@@ -21,24 +24,43 @@ import java.util.List;
  * @Version: 1.0
  */
 
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
+    //@Autowired
+    //private RestTemplate restTemplate;
+    //
+    //@Autowired
+    //private DiscoveryClient discoveryClient;
     @Autowired
-    private RestTemplate restTemplate;
+    private UserClient userClient;
 
-    @Autowired
-    private DiscoveryClient discoveryClient;
+    @RequestMapping(value = "/find/{id}")
+    public User findUser(@PathVariable String id) {
+        User user = userClient.find(id);
+        return user;
+    }
 
-    @RequestMapping(value = "/findUser/{stuId}")
-    public User findUser(@PathVariable String stuId) throws ParseException {
-        List<ServiceInstance> instanceList = discoveryClient.getInstances("user-service");
-        ServiceInstance serviceInstance = instanceList.get(0);
+    @RequestMapping(value = "/findAll")
+    public List<User> findAllUsers() {
+        return userClient.findAll();
+    }
 
-        String url = "http://" + serviceInstance.getHost() + ":" + serviceInstance.getPort() + "/user/findUser/" + stuId;
-        System.out.println(url);
-        return restTemplate.getForObject(url, User.class);
+    @RequestMapping(value = "/add")
+    public List<User> addUser(@RequestBody User user) {
+        return userClient.add(user);
+    }
+
+    @RequestMapping(value = "/update")
+    public List<User> updateUser(@RequestBody User user) {
+        return userClient.update(user);
+    }
+
+    @RequestMapping(value = "/delete/{id}")
+    public List<User> deleteUser(@PathVariable String id) {
+        return userClient.delete(id);
     }
 
 }

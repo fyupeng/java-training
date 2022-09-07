@@ -1,0 +1,214 @@
+<!--html：5 然后回车生成下面这段代码-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统</title>
+    <!--导入bootstrap的样式文件-->
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+</head>
+<body>
+    <!--前端的任务 页面绘制 页面数据的渲染-->
+    <!--视图区域被挂载到vue对象中 -->
+    <div id="app">  
+        <!--
+            下面的代码 使用bootstrap3.0的插件生成的 
+            生成的方式是：直接在这里输入 
+            bs3-panel:table
+        -->
+        <!--修改一下页面样式 把default改成primary-->
+        <div class="panel panel-primary">
+            <!-- Default panel contents -->
+            <div class="panel-heading">用户管理系统</div>
+                <div class="panel-body form-inline">
+                    <label>用户名:</label>
+                    <input type="text" class="form-control" v-model="userName">
+                    <label>年龄:</label>
+                    <input type="text" class="form-control" v-model="age">
+                    <label>性别:</label>
+                    <input type="text" class="form-control" v-model="sex">
+                    <label>生日:</label>
+                    <input type="text" class="form-control" v-model="birthday">
+                    <label>别名:</label>
+                    <input type="text" class="form-control" v-model="name">
+                    <label>留言:</label>
+                    <input type="text" class="form-control" v-model="note">
+                    <button type="button" class="btn btn-primary" @click="add">添加</button>
+                    <button type="button" class="btn btn-success" @click="edit">提交修改</button>
+                </div>
+        
+                <!-- Table -->
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>用户名</th>
+                            <th>年龄</th>
+                            <th>性别</th>
+                            <th>生日</th>
+                            <th>别名</th>
+                            <th>留言</th>
+                        </tr>
+
+                    </thead>
+                    <tbody v-for="(user, index) in users">
+                        <tr>
+                            <td>{{user.id}}</td>
+                            <td>{{user.userName}}</td>
+                            <td>{{user.age}}</td>
+                            <td>{{user.sex}}</td>
+                            <td>{{user.birthday}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.note}}</td>
+                            <td>
+                                <button type="button" class="btn btn-info" @click=editbtn(user.id)>修改</button>
+                                <button type="button" class="btn btn-danger" @click="del(index,user.id)">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+        </div>
+        
+    </div>
+</body>
+<!--首先先导入vue.js文件-->
+<script src="./js/vue.js"></script>
+<script src="./api/usermng.js" ></script>
+<script type="text/javascript" src="./js/jQuery-1.5.1.js"></script>
+<!--导入axios这个js文件 前端用来获取服务器端的数据的 将这个文件放到项目的根目录下面跟页面放在一起-->
+<script src="./js/axios-0.18.0.js"></script>
+<script>
+    //创建vue实例 用作为一个调度者
+    var vm = new Vue({
+        el:'#app',//用来指定要挂载视图区域
+        data: {//用来存放数据的区域
+            users:[
+                // {id:1,userName:'root',password:'root',name:'admin'},//数组的下标从0开始的
+                // {id:2,userName:'root',password:'root',name:'admin'},//数组的下标从0开始的
+                // {id:3,userName:'root',password:'root',name:'admin'},//数组的下标从0开始的
+                // {id:4,userName:'root',password:'root',name:'admin'},//数组的下标从0开始的
+            ],
+            id:'',
+            userName:'',
+            age: '',
+            sex: '',
+            birthday: '',
+            note: '',
+            name:''
+        },
+        methods: {//编写自定义的方法的区域
+            add(){
+
+                var user = {
+                    userName:this.userName,
+                    age: this.age,
+                    sex: this.sex,
+                    birthday: this.birthday,
+                    note: this.note,
+                    name:this.name
+                }
+                usermng.addUser(user).then(res => {
+                    console.log(res)
+                    this.users = res;
+                    alert('添加成功！')
+                })
+                // //如何向一个数组追加元素：调用数组的push方法
+                // this.users.push({
+                //     id:this.id,
+                //     userName:this.userName,
+                //     age: this.age,
+                //     sex: this.sex,
+                //     birthday: this.birthday,
+                //     note: this.note,
+                //     name:this.name
+                // });
+            },
+            //删除记录的方法
+            del(index,id){
+                console.log(index);//index指的是对应记录在数组中的下标
+                this.users.splice(index,1);//这里是通过数组下标来删除的，第一个参数就是数组的开始下标，第二个参数表示要删除多少条记录
+
+                usermng.deleteUser(id).then(res => {
+                    this.users = res;
+                    console.log(res)
+                })
+            },
+            //进行修改的话 首先要获取修改的记录到输入文本框中
+            editbtn(id){
+                 console.log(id);
+                //通过这个id去遍历数组books找到对应的记录 然后通过v-model显示到文本框中
+                if(id!=null && id!=""){//确保这个id不为空值
+                    //去循环访问数组找到对应的记录
+                    for(var i = 0;i<this.users.length;i++){
+                        //找到相同记录的话就赋值给 text文本框 v-model
+                        if(id==this.users[i].id){
+                            //使用这个v-model进行双向数据绑定
+                            this.id = this.users[i].id;//找到这个记录后赋值给文本框
+                            this.userName = this.users[i].userName;
+                            this.name = this.users[i].name;
+                            this.age = this.users[i].age;
+                            this.sex = this.users[i].sex;
+                            this.note = this.users[i].note;
+                            this.birthday = this.users[i].birthday;
+                        }
+                    }
+                }
+            },
+            //具体的修改方法
+            edit(){
+                if(this.id==null || this.id==""){
+                    alert("记录不能为空值");
+                    return;
+                }
+                //当id不为空就是有选中记录的情况 就进行修改
+                for(var i = 0;i<this.users.length;i++){
+                    //先根据这个id去数组中找到原来的数据
+                    if(this.users[i].id==this.id){
+
+                         //将要修改的数据封装到JavaScript对象中
+                         var user = {
+                             id:this.id,
+                             userName:this.userName,
+                             age: this.age,
+                             sex: this.sex,
+                             birthday: this.birthday,
+                             note: this.note,
+                             name:this.name
+                        }
+
+                        usermng.updateUser(user).then(res => {
+                            console.log(res);
+                            this.users = res;
+                        })
+
+                        // //修改这个数组中的数据
+                        // this.id = this.users[i].id;//找到这个记录后赋值给文本框
+                        // this.userName = this.users[i].userName;
+                        // this.name = this.users[i].name;
+                        // this.age = this.users[i].age;
+                        // this.sex = this.users[i].sex;
+                        // this.note = this.users[i].note;
+                        // this.birthday = this.users[i].birthday;
+
+                        //页面中找到数据相同的记录后就进行修改
+
+                        break;//修改完毕后 就结束循环
+                    }
+                }
+
+            }
+        },
+        //如果我们要操作页面的数据的话 是不是要在created这个生命周期函数进行
+        created() {
+            //当我们打开页面的时候，这个vue就会自动执行这里面的代码
+            //先从服务器端地址获取数据 要获取数据首先得有api接口地址
+            usermng.getUserList().then(res => {
+                console.log(res)
+                this.users = res
+            })
+
+        },
+    });
+</script>
+</html>
